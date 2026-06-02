@@ -10,6 +10,13 @@ function seed() {
     console.log('✓ Usuario creado  →  usuario: admin  |  password: admin123');
   }
 
+  // Actualizar password si está definido en variable de entorno
+  if (process.env.ADMIN_PASSWORD) {
+    const hash = bcrypt.hashSync(process.env.ADMIN_PASSWORD, 10);
+    db.prepare('UPDATE usuarios SET password = ? WHERE usuario = ?').run(hash, 'admin');
+    console.log('✓ Password de admin actualizado desde ADMIN_PASSWORD');
+  }
+
   // Cajas
   const cajas = ['ATROX', 'PERSONAL', 'VALENTINO', 'JESICA', 'TARJETAS', 'SUELDOS'];
   for (const nombre of cajas) {
