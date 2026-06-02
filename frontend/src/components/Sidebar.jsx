@@ -8,7 +8,7 @@ const nav = [
   { to: '/reportes',     label: 'Reportes',     icon: '📈' },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ menuAbierto, cerrarMenu }) {
   const { logout, usuario } = useAuth();
   const navigate = useNavigate();
 
@@ -18,33 +18,36 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="sidebar-desktop" style={{ width: '220px', minHeight: '100vh', background: '#1A1D27', borderRight: '1px solid #2D3748', flexDirection: 'column', padding: '0', flexShrink: 0 }}>
-      {/* Logo */}
-      <div style={{ padding: '28px 20px 24px', borderBottom: '1px solid #2D3748' }}>
-        <div style={{ color: '#F97316', fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.5px' }}>
-          💰 Contable
+    <aside
+      className={`sidebar-desktop${menuAbierto ? ' sidebar-open' : ''}`}
+      style={{ width: '220px', minHeight: '100vh', background: '#1A1D27', borderRight: '1px solid #2D3748', flexDirection: 'column', padding: '0', flexShrink: 0 }}
+    >
+      <div style={{ padding: '28px 20px 24px', borderBottom: '1px solid #2D3748', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <div style={{ color: '#F97316', fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.5px' }}>
+            💰 Contable
+          </div>
+          <div style={{ color: '#94A3B8', fontSize: '0.75rem', marginTop: '4px' }}>
+            Control Financiero
+          </div>
         </div>
-        <div style={{ color: '#94A3B8', fontSize: '0.75rem', marginTop: '4px' }}>
-          Control Financiero
-        </div>
+        <button className="sidebar-close-btn" onClick={cerrarMenu}
+          style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', fontSize: '1.2rem', padding: '4px' }}>
+          ✕
+        </button>
       </div>
 
-      {/* Nav */}
       <nav style={{ flex: 1, padding: '16px 12px' }}>
         {nav.map(({ to, label, icon }) => (
           <NavLink
             key={to}
             to={to}
             end={to === '/'}
+            onClick={cerrarMenu}
             style={({ isActive }) => ({
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              padding: '11px 14px',
-              borderRadius: '8px',
-              marginBottom: '4px',
-              textDecoration: 'none',
-              fontSize: '0.9rem',
+              display: 'flex', alignItems: 'center', gap: '10px',
+              padding: '11px 14px', borderRadius: '8px', marginBottom: '4px',
+              textDecoration: 'none', fontSize: '0.9rem',
               fontWeight: isActive ? 600 : 400,
               color: isActive ? '#F97316' : '#94A3B8',
               background: isActive ? 'rgba(249,115,22,0.1)' : 'transparent',
@@ -57,7 +60,6 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* Footer usuario */}
       <div style={{ padding: '16px 12px', borderTop: '1px solid #2D3748' }}>
         <div style={{ color: '#94A3B8', fontSize: '0.78rem', marginBottom: '10px', paddingLeft: '4px' }}>
           👤 {usuario}
@@ -70,8 +72,8 @@ export default function Sidebar() {
             color: '#94A3B8', cursor: 'pointer', fontSize: '0.85rem',
             transition: 'all 0.15s',
           }}
-          onMouseOver={e => { e.target.style.borderColor = '#EF4444'; e.target.style.color = '#EF4444'; }}
-          onMouseOut={e => { e.target.style.borderColor = '#2D3748'; e.target.style.color = '#94A3B8'; }}
+          onMouseOver={e => { e.currentTarget.style.borderColor = '#EF4444'; e.currentTarget.style.color = '#EF4444'; }}
+          onMouseOut={e => { e.currentTarget.style.borderColor = '#2D3748'; e.currentTarget.style.color = '#94A3B8'; }}
         >
           Cerrar sesion
         </button>

@@ -14,12 +14,43 @@ body {
 }
 
 .sidebar-desktop { display: flex; }
-.bottom-nav { display: none; }
+.mobile-header { display: none; }
+.mobile-overlay { display: none; }
+.sidebar-close-btn { display: none; }
 
 @media (max-width: 768px) {
-  .sidebar-desktop { display: none !important; }
-  .bottom-nav { display: flex; }
-  .main-content { padding-bottom: 72px; }
+  .sidebar-desktop {
+    display: flex !important;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    transform: translateX(-100%);
+    transition: transform 0.28s ease;
+    z-index: 200;
+    min-height: 100dvh;
+  }
+  .sidebar-desktop.sidebar-open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+  }
+  .sidebar-close-btn { display: block; }
+  .mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: #1A1D27;
+    border-bottom: 1px solid #2D3748;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .mobile-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 150;
+  }
 }
 
 /* Scrollbar oscuro */

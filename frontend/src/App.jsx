@@ -1,21 +1,42 @@
+import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Sidebar    from './components/Sidebar';
-import BottomNav  from './components/BottomNav';
-import Login      from './pages/Login';
-import Dashboard  from './pages/Dashboard';
-import NuevoGasto from './pages/NuevoGasto';
+import Sidebar     from './components/Sidebar';
+import Login       from './pages/Login';
+import Dashboard   from './pages/Dashboard';
+import NuevoGasto  from './pages/NuevoGasto';
 import Movimientos from './pages/Movimientos';
-import Reportes   from './pages/Reportes';
+import Reportes    from './pages/Reportes';
 
 function Layout() {
+  const [menuAbierto, setMenuAbierto] = useState(false);
+
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#0F1117' }}>
-      <Sidebar />
-      <main className="main-content" style={{ flex: 1, overflowY: 'auto', minHeight: '100vh' }}>
-        <Outlet />
-      </main>
-      <BottomNav />
+      {menuAbierto && (
+        <div className="mobile-overlay" onClick={() => setMenuAbierto(false)} />
+      )}
+
+      <Sidebar menuAbierto={menuAbierto} cerrarMenu={() => setMenuAbierto(false)} />
+
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+        <header className="mobile-header">
+          <button
+            onClick={() => setMenuAbierto(true)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px', color: '#F7FAFC' }}
+          >
+            <div style={{ width: 22, height: 2, background: 'currentColor', marginBottom: 5 }} />
+            <div style={{ width: 22, height: 2, background: 'currentColor', marginBottom: 5 }} />
+            <div style={{ width: 22, height: 2, background: 'currentColor' }} />
+          </button>
+          <span style={{ color: '#F97316', fontWeight: 800, fontSize: '1.1rem' }}>💰 Contable</span>
+          <div style={{ width: 34 }} />
+        </header>
+
+        <main className="main-content" style={{ flex: 1, overflowY: 'auto' }}>
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }
