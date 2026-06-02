@@ -13,6 +13,8 @@ body {
   margin: 0;
 }
 
+.tabla-desktop { display: block; }
+.tarjetas-mobile { display: none; }
 .sidebar-desktop { display: flex; }
 .mobile-header { display: none; }
 .mobile-overlay { display: none; }
@@ -44,6 +46,8 @@ body {
     top: 0;
     z-index: 100;
   }
+  .tabla-desktop { display: none; }
+  .tarjetas-mobile { display: flex; }
   .mobile-overlay {
     display: block;
     position: fixed;
