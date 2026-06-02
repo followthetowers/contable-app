@@ -70,6 +70,9 @@ export default function Login() {
               placeholder="admin"
               autoFocus
               autoComplete="username"
+              autoCapitalize="off"
+              autoCorrect="off"
+              spellCheck="false"
             />
           </div>
 

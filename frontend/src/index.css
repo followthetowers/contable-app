@@ -13,6 +13,15 @@ body {
   margin: 0;
 }
 
+.sidebar-desktop { display: flex; }
+.bottom-nav { display: none; }
+
+@media (max-width: 768px) {
+  .sidebar-desktop { display: none !important; }
+  .bottom-nav { display: flex; }
+  .main-content { padding-bottom: 72px; }
+}
+
 /* Scrollbar oscuro */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #1A1D27; }

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Sidebar    from './components/Sidebar';
+import BottomNav  from './components/BottomNav';
 import Login      from './pages/Login';
 import Dashboard  from './pages/Dashboard';
 import NuevoGasto from './pages/NuevoGasto';
@@ -11,9 +12,10 @@ function Layout() {
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#0F1117' }}>
       <Sidebar />
-      <main style={{ flex: 1, overflowY: 'auto', minHeight: '100vh' }}>
+      <main className="main-content" style={{ flex: 1, overflowY: 'auto', minHeight: '100vh' }}>
         <Outlet />
       </main>
+      <BottomNav />
     </div>
   );
 }

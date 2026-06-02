@@ -18,7 +18,7 @@ export default function Sidebar() {
   };
 
   return (
-    <aside style={{ width: '220px', minHeight: '100vh', background: '#1A1D27', borderRight: '1px solid #2D3748', display: 'flex', flexDirection: 'column', padding: '0', flexShrink: 0 }}>
+    <aside className="sidebar-desktop" style={{ width: '220px', minHeight: '100vh', background: '#1A1D27', borderRight: '1px solid #2D3748', flexDirection: 'column', padding: '0', flexShrink: 0 }}>
       {/* Logo */}
       <div style={{ padding: '28px 20px 24px', borderBottom: '1px solid #2D3748' }}>
         <div style={{ color: '#F97316', fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.5px' }}>
