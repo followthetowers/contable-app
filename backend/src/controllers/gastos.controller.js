@@ -2,6 +2,11 @@ const db = require('../db/database');
 
 const listar = (req, res) => {
   const { fecha_desde, fecha_hasta, categoria_id, caja_id, metodo_pago, busqueda } = req.query;
+  const rol = req.usuario.rol || 'usuario';
+
+  // Usuarios con rol limitado solo pueden ver el mes en curso
+  const ahora = new Date();
+  const inicioMesActual = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}-01`;
 
   let query = `
     SELECT g.*,
@@ -14,7 +19,14 @@ const listar = (req, res) => {
   `;
   const params = [];
 
-  if (fecha_desde)  { query += ' AND g.fecha >= ?';             params.push(fecha_desde); }
+  if (rol !== 'admin') {
+    // Forzar que no pueda ver antes del inicio del mes actual
+    const desdeEfectivo = fecha_desde && fecha_desde > inicioMesActual ? fecha_desde : inicioMesActual;
+    query += ' AND g.fecha >= ?'; params.push(desdeEfectivo);
+  } else {
+    if (fecha_desde) { query += ' AND g.fecha >= ?'; params.push(fecha_desde); }
+  }
+
   if (fecha_hasta)  { query += ' AND g.fecha <= ?';             params.push(fecha_hasta); }
   if (categoria_id) { query += ' AND g.categoria_id = ?';       params.push(categoria_id); }
   if (caja_id)      { query += ' AND g.caja_id = ?';            params.push(caja_id); }

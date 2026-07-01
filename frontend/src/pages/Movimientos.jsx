@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { apiGetGastos, apiEliminarGasto, apiGetCategorias } from '../services/api';
 import { formatMonto, formatFecha, METODOS_PAGO } from '../utils/formatear';
 import ModalEditar from '../components/ModalEditar';
@@ -23,7 +24,13 @@ function getPeriodo(tipo) {
   return { desde: '', hasta: '' };
 }
 
-const PERIODOS = [
+const PERIODOS_ADMIN = [
+  { key: 'hoy',          label: 'Hoy' },
+  { key: 'semana',       label: 'Esta semana' },
+  { key: 'mes',          label: 'Este mes' },
+];
+
+const PERIODOS_TODOS = [
   { key: 'todo',         label: 'Todo' },
   { key: 'hoy',         label: 'Hoy' },
   { key: 'semana',      label: 'Esta semana' },
@@ -33,6 +40,8 @@ const PERIODOS = [
 ];
 
 export default function Movimientos() {
+  const { rol } = useAuth();
+  const PERIODOS = rol === 'admin' ? PERIODOS_TODOS : PERIODOS_ADMIN;
   const [gastos,     setGastos]     = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [cajas,      setCajas]      = useState([]);
