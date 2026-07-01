@@ -5,6 +5,7 @@ const nav = [
   { to: '/',             label: 'Dashboard',    icon: '📊' },
   { to: '/nuevo-gasto',  label: 'Nuevo Gasto',  icon: '➕' },
   { to: '/movimientos',  label: 'Movimientos',  icon: '📋' },
+  { to: '/almanaque',    label: 'Almanaque',    icon: '📅' },
   { to: '/reportes',     label: 'Reportes',     icon: '📈' },
 ];
 

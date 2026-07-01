@@ -6,6 +6,7 @@ import Login       from './pages/Login';
 import Dashboard   from './pages/Dashboard';
 import NuevoGasto  from './pages/NuevoGasto';
 import Movimientos from './pages/Movimientos';
+import Almanaque   from './pages/Almanaque';
 import Reportes    from './pages/Reportes';
 
 function Layout() {
@@ -57,6 +58,7 @@ export default function App() {
               <Route path="/"             element={<Dashboard />} />
               <Route path="/nuevo-gasto"  element={<NuevoGasto />} />
               <Route path="/movimientos"  element={<Movimientos />} />
+              <Route path="/almanaque"    element={<Almanaque />} />
               <Route path="/reportes"     element={<Reportes />} />
             </Route>
           </Route>

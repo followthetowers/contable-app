@@ -6,6 +6,7 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [token,   setToken]   = useState(() => localStorage.getItem('token') || null);
   const [usuario, setUsuario] = useState(() => localStorage.getItem('usuario') || null);
+  const [rol,     setRol]     = useState(() => localStorage.getItem('rol') || 'usuario');
 
   useEffect(() => {
     if (token) {
@@ -15,24 +16,28 @@ export function AuthProvider({ children }) {
     }
   }, [token]);
 
-  const login = (tok, user) => {
+  const login = (tok, user, rolUsuario = 'usuario') => {
     localStorage.setItem('token',   tok);
     localStorage.setItem('usuario', user);
+    localStorage.setItem('rol',     rolUsuario);
     axios.defaults.headers.common['Authorization'] = `Bearer ${tok}`;
     setToken(tok);
     setUsuario(user);
+    setRol(rolUsuario);
   };
 
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('usuario');
+    localStorage.removeItem('rol');
     delete axios.defaults.headers.common['Authorization'];
     setToken(null);
     setUsuario(null);
+    setRol('usuario');
   };
 
   return (
-    <AuthContext.Provider value={{ token, usuario, login, logout, estaLogueado: !!token }}>
+    <AuthContext.Provider value={{ token, usuario, rol, login, logout, estaLogueado: !!token }}>
       {children}
     </AuthContext.Provider>
   );

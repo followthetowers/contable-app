@@ -19,7 +19,7 @@ export default function Login() {
     setError('');
     try {
       const res = await apiLogin(usuario, password);
-      login(res.data.token, res.data.usuario);
+      login(res.data.token, res.data.usuario, res.data.rol);
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.error || 'Error de conexion. Verificá que el servidor esté corriendo.');
@@ -105,7 +105,7 @@ export default function Login() {
         </form>
 
         <p style={{ textAlign: 'center', color: '#4A5568', fontSize: '0.75rem', marginTop: '24px' }}>
-          usuario: admin · contraseña: admin123
+          Control Financiero
         </p>
       </div>
     </div>

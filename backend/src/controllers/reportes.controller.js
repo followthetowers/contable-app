@@ -1,50 +1,47 @@
 const db = require('../db/database');
 
 const dashboard = (req, res) => {
-  const uid = req.usuario.id;
   const ahora = new Date();
   const hoy = ahora.toISOString().split('T')[0];
 
-  // Inicio de semana (lunes)
   const diaSemana = ahora.getDay() === 0 ? 7 : ahora.getDay();
   const inicioSemana = new Date(ahora);
   inicioSemana.setDate(ahora.getDate() - diaSemana + 1);
   const inicioSemanaStr = inicioSemana.toISOString().split('T')[0];
 
-  // Inicio de mes
   const inicioMes = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}-01`;
 
   const totalHoy = db.prepare(
-    "SELECT COALESCE(SUM(monto), 0) AS total FROM gastos WHERE usuario_id = ? AND fecha = ?"
-  ).get(uid, hoy);
+    "SELECT COALESCE(SUM(monto), 0) AS total FROM gastos WHERE fecha = ?"
+  ).get(hoy);
 
   const totalSemana = db.prepare(
-    "SELECT COALESCE(SUM(monto), 0) AS total FROM gastos WHERE usuario_id = ? AND fecha >= ?"
-  ).get(uid, inicioSemanaStr);
+    "SELECT COALESCE(SUM(monto), 0) AS total FROM gastos WHERE fecha >= ?"
+  ).get(inicioSemanaStr);
 
   const totalMes = db.prepare(
-    "SELECT COALESCE(SUM(monto), 0) AS total FROM gastos WHERE usuario_id = ? AND fecha >= ?"
-  ).get(uid, inicioMes);
+    "SELECT COALESCE(SUM(monto), 0) AS total FROM gastos WHERE fecha >= ?"
+  ).get(inicioMes);
 
   const porCategoria = db.prepare(`
     SELECT COALESCE(c.nombre, 'Sin categoria') AS nombre,
            COALESCE(SUM(g.monto), 0) AS total
     FROM gastos g
     LEFT JOIN categorias c ON g.categoria_id = c.id
-    WHERE g.usuario_id = ? AND g.fecha >= ?
+    WHERE g.fecha >= ?
     GROUP BY g.categoria_id
     ORDER BY total DESC
-  `).all(uid, inicioMes);
+  `).all(inicioMes);
 
   const porCaja = db.prepare(`
     SELECT COALESCE(c.nombre, 'Sin caja') AS nombre,
            COALESCE(SUM(g.monto), 0) AS total
     FROM gastos g
     LEFT JOIN categorias c ON g.caja_id = c.id
-    WHERE g.usuario_id = ? AND g.fecha >= ?
+    WHERE g.fecha >= ?
     GROUP BY g.caja_id
     ORDER BY total DESC
-  `).all(uid, inicioMes);
+  `).all(inicioMes);
 
   const ultimosMovimientos = db.prepare(`
     SELECT g.*,
@@ -53,10 +50,9 @@ const dashboard = (req, res) => {
     FROM gastos g
     LEFT JOIN categorias c  ON g.categoria_id = c.id
     LEFT JOIN categorias ca ON g.caja_id      = ca.id
-    WHERE g.usuario_id = ?
     ORDER BY g.fecha DESC, g.creado_en DESC
     LIMIT 10
-  `).all(uid);
+  `).all();
 
   res.json({
     totalHoy: totalHoy.total,
@@ -69,7 +65,6 @@ const dashboard = (req, res) => {
 };
 
 const resumen = (req, res) => {
-  const uid = req.usuario.id;
   const ahora = new Date();
   const fechaDesde = req.query.desde || `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}-01`;
   const fechaHasta = req.query.hasta || ahora.toISOString().split('T')[0];
@@ -80,10 +75,10 @@ const resumen = (req, res) => {
            COUNT(*) AS cantidad
     FROM gastos g
     LEFT JOIN categorias c ON g.categoria_id = c.id
-    WHERE g.usuario_id = ? AND g.fecha BETWEEN ? AND ?
+    WHERE g.fecha BETWEEN ? AND ?
     GROUP BY g.categoria_id
     ORDER BY total DESC
-  `).all(uid, fechaDesde, fechaHasta);
+  `).all(fechaDesde, fechaHasta);
 
   const porCaja = db.prepare(`
     SELECT COALESCE(c.nombre, 'Sin caja') AS nombre,
@@ -91,20 +86,19 @@ const resumen = (req, res) => {
            COUNT(*) AS cantidad
     FROM gastos g
     LEFT JOIN categorias c ON g.caja_id = c.id
-    WHERE g.usuario_id = ? AND g.fecha BETWEEN ? AND ?
+    WHERE g.fecha BETWEEN ? AND ?
     GROUP BY g.caja_id
     ORDER BY total DESC
-  `).all(uid, fechaDesde, fechaHasta);
+  `).all(fechaDesde, fechaHasta);
 
   const totalGeneral = db.prepare(
-    "SELECT COALESCE(SUM(monto), 0) AS total FROM gastos WHERE usuario_id = ? AND fecha BETWEEN ? AND ?"
-  ).get(uid, fechaDesde, fechaHasta);
+    "SELECT COALESCE(SUM(monto), 0) AS total FROM gastos WHERE fecha BETWEEN ? AND ?"
+  ).get(fechaDesde, fechaHasta);
 
   res.json({ porCategoria, porCaja, totalGeneral: totalGeneral.total, desde: fechaDesde, hasta: fechaHasta });
 };
 
 const exportarCSV = (req, res) => {
-  const uid = req.usuario.id;
   const ahora = new Date();
   const fechaDesde = req.query.desde || `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}-01`;
   const fechaHasta = req.query.hasta || ahora.toISOString().split('T')[0];
@@ -117,9 +111,9 @@ const exportarCSV = (req, res) => {
     FROM gastos g
     LEFT JOIN categorias c  ON g.categoria_id = c.id
     LEFT JOIN categorias ca ON g.caja_id      = ca.id
-    WHERE g.usuario_id = ? AND g.fecha BETWEEN ? AND ?
+    WHERE g.fecha BETWEEN ? AND ?
     ORDER BY g.fecha DESC
-  `).all(uid, fechaDesde, fechaHasta);
+  `).all(fechaDesde, fechaHasta);
 
   const encabezado = 'Fecha,Monto,Descripcion,Categoria,Caja,Metodo de Pago,Tipo Periodo\n';
   const filas = gastos.map(g =>
@@ -131,4 +125,63 @@ const exportarCSV = (req, res) => {
   res.send(encabezado + filas);
 };
 
-module.exports = { dashboard, resumen, exportarCSV };
+const almanaque = (req, res) => {
+  const año = parseInt(req.query.año) || new Date().getFullYear();
+
+  const filas = db.prepare(`
+    SELECT strftime('%m', fecha) AS mes,
+           COALESCE(SUM(monto), 0) AS total,
+           COUNT(*) AS cantidad
+    FROM gastos
+    WHERE strftime('%Y', fecha) = ?
+    GROUP BY strftime('%m', fecha)
+  `).all(String(año));
+
+  const meses = Array.from({ length: 12 }, (_, i) => {
+    const mesStr = String(i + 1).padStart(2, '0');
+    const fila = filas.find(f => f.mes === mesStr);
+    return { mes: i + 1, total: fila ? fila.total : 0, cantidad: fila ? fila.cantidad : 0 };
+  });
+
+  res.json({ año, meses });
+};
+
+const gastosMes = (req, res) => {
+  const año = parseInt(req.params.año);
+  const mes = parseInt(req.params.mes);
+  const rol = req.usuario.rol || 'usuario';
+
+  const ahora = new Date();
+  const mesActual = ahora.getMonth() + 1;
+  const añoActual = ahora.getFullYear();
+  const esMesActual = año === añoActual && mes === mesActual;
+  const esMesFuturo = año > añoActual || (año === añoActual && mes > mesActual);
+
+  const desde = `${año}-${String(mes).padStart(2, '0')}-01`;
+  const diasMes = new Date(año, mes, 0).getDate();
+  const hasta = `${año}-${String(mes).padStart(2, '0')}-${String(diasMes).padStart(2, '0')}`;
+
+  const totalRow = db.prepare(
+    "SELECT COALESCE(SUM(monto), 0) AS total, COUNT(*) AS cantidad FROM gastos WHERE fecha BETWEEN ? AND ?"
+  ).get(desde, hasta);
+
+  // admin (rol='usuario') no puede ver detalle de meses pasados
+  if (!esMesActual && !esMesFuturo && rol !== 'admin') {
+    return res.json({ año, mes, total: totalRow.total, cantidad: totalRow.cantidad, restringido: true, gastos: [] });
+  }
+
+  const gastos = db.prepare(`
+    SELECT g.*,
+           c.nombre  AS categoria_nombre,
+           ca.nombre AS caja_nombre
+    FROM gastos g
+    LEFT JOIN categorias c  ON g.categoria_id = c.id
+    LEFT JOIN categorias ca ON g.caja_id      = ca.id
+    WHERE g.fecha BETWEEN ? AND ?
+    ORDER BY g.fecha DESC, g.creado_en DESC
+  `).all(desde, hasta);
+
+  res.json({ año, mes, total: totalRow.total, cantidad: totalRow.cantidad, restringido: false, gastos });
+};
+
+module.exports = { dashboard, resumen, exportarCSV, almanaque, gastosMes };

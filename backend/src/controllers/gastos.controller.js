@@ -10,9 +10,9 @@ const listar = (req, res) => {
     FROM gastos g
     LEFT JOIN categorias c  ON g.categoria_id = c.id
     LEFT JOIN categorias ca ON g.caja_id      = ca.id
-    WHERE g.usuario_id = ?
+    WHERE 1=1
   `;
-  const params = [req.usuario.id];
+  const params = [];
 
   if (fecha_desde)  { query += ' AND g.fecha >= ?';             params.push(fecha_desde); }
   if (fecha_hasta)  { query += ' AND g.fecha <= ?';             params.push(fecha_hasta); }

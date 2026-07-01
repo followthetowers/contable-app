@@ -30,6 +30,12 @@ export const apiGetDashboard = () =>
 export const apiGetResumen = (params = {}) =>
   axios.get(`${BASE}/reportes/resumen`, { params });
 
+export const apiGetAlmanaque = (año) =>
+  axios.get(`${BASE}/reportes/almanaque`, { params: { año } });
+
+export const apiGetGastosMes = (año, mes) =>
+  axios.get(`${BASE}/reportes/mes/${año}/${mes}`);
+
 export const apiExportarCSV = (params = {}) => {
   const query = new URLSearchParams(params).toString();
   const token = localStorage.getItem('token');

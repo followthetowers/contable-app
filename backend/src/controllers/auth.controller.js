@@ -18,12 +18,12 @@ const login = (req, res) => {
   }
 
   const token = jwt.sign(
-    { id: user.id, usuario: user.usuario },
+    { id: user.id, usuario: user.usuario, rol: user.rol || 'usuario' },
     SECRET,
     { expiresIn: '7d' }
   );
 
-  res.json({ token, usuario: user.usuario });
+  res.json({ token, usuario: user.usuario, rol: user.rol || 'usuario' });
 };
 
 module.exports = { login };

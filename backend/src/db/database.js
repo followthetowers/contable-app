@@ -36,4 +36,7 @@ db.exec(`
   );
 `);
 
+// Agregar columna rol si no existe (migracion)
+try { db.exec(`ALTER TABLE usuarios ADD COLUMN rol TEXT DEFAULT 'usuario'`); } catch (_) {}
+
 module.exports = db;
